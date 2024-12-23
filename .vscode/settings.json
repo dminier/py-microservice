@@ -1,6 +1,4 @@
 {
- 
-
   // Python settings
   "[python]": {
     "editor.formatOnSave": true,
@@ -25,8 +23,8 @@
 
   // General settings for organizing imports and fixing issues
   "editor.codeActionsOnSave": {
-    "source.organizeImports": "explicit",
-    "source.fixAll": "explicit"
+    "source.organizeImports": "always",
+    "source.fixAll": "always"
   },
 
   // Python testing

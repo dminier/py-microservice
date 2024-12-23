@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "py-microservice",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceRoot}",
+                "PYTHONDONTWRITEBYTECODE": "1",
+            },
+            "args": [
+                "virtual_staff.launch:app",
+                "--reload",
+                "--workers",
+                "1",
+                "--port",
+                "8080"
+            ]
+        }
+    
+    ]
+}

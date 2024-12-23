@@ -1,0 +1,50 @@
+{
+ 
+
+  // Python settings
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff",
+  },
+
+  // JSON settings
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  // YAML settings
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  // General settings for organizing imports and fixing issues
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
+  },
+
+  // Python testing
+  "python.testing.unittestArgs": [
+    "-v",
+    "-s",
+    "./tests",
+    "-p",
+    "*_test.py"
+  ],
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestEnabled": true,
+
+  // Prettier settings
+  "prettier.tabWidth": 2, // Consistent tab width for formatting
+  "prettier.singleQuote": true, // Use single quotes for strings
+  "prettier.trailingComma": "all", // Enforce trailing commas
+  "prettier.arrowParens": "always", // Enforce parentheses for arrow functions
+  "prettier.printWidth": 120, // Enforce maximum line length
+  "prettier.endOfLine": "lf", // Normalize line endings
+}

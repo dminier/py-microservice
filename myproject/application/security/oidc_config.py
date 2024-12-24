@@ -23,7 +23,7 @@ def _load_oidc_config() -> OidcConfig:
         )
         return None
 
-    audience = os.getenv("OIDC_AUDIENCE", None)
+    audience = os.getenv("OIDC_AUDIENCE", "account")
 
     if audience is None:
         raise EnvironmentError("OIDC_AUDIENCE not found in environment variables.")
@@ -44,7 +44,11 @@ def _load_oidc_config() -> OidcConfig:
         )
 
     jwks_client = jwt.PyJWKClient(jwks_uri)
-    return OidcConfig(signing_algos, jwks_uri, jwks_client, audience)
+    config = OidcConfig(signing_algos, jwks_uri, jwks_client, audience)
+
+    logger.debug("OIDC configuration loaded: {}", config)
+
+    return config
 
 
 OIDC_CONFIG: OidcConfig = _load_oidc_config()

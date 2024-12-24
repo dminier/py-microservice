@@ -28,8 +28,6 @@ There is a lot of tools to manage dependencies in Python. The most common are `p
 
 Were are looging for a simple, fast and efficient way to manage dependencies.
 
-We will use `uv` after reading this article of Fedor Gnetkov : https://medium.com/@gnetkov/start-using-uv-python-package-manager-for-better-dependency-management-183e7e428760
-
 # Security
 
 This project includes a basic security setup using Keycloak as an identity provider. We can't avoid talking of microservices without talking about security and the main protocols to use are OAuth2 and OpenID Connect.
@@ -45,7 +43,11 @@ The main goal of this section is to provide common patterns :
 # References
 
 - UV, Packaging and project manager : https://astral.sh/blog/uv
+- UV, Usefull guide : https://medium.com/@gnetkov/start-using-uv-python-package-manager-for-better-dependency-management-183e7e428760
 - Fastapi, Python web framework : https://fastapi.tiangolo.com/
 - Loguru, Python logging library : https://github.com/Delgan/loguru
+- Loguru, usefull uvicorn integration : https://pawamoy.github.io/posts/unify-logging-for-a-gunicorn-uvicorn-app/
 - vscode-python, very good pratices here : https://github.com/microsoft/vscode-python/tree/main/.vscode
-- keycloak with easy configuration : https://github.com/little-pinecone/keycloak-in-docker
+- keycloak with usefull docker integration : https://github.com/little-pinecone/keycloak-in-docker
+- PyJWT : https://pyjwt.readthedocs.io/en/latest/usage.html
+- 12-Factor : https://12factor.net/, https://github.com/twelve-factor/twelve-factor

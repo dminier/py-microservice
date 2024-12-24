@@ -1,25 +1,28 @@
+import os
+
 from fastapi import FastAPI
 from loguru import logger
 
 from myproject.application import health_endpoint, user_endpoint
+from myproject.application.logger.logger_config import LoggerConfig
+
+API_ROUTE_PREFIX: str = os.getenv("API_ROUTE_PREFIX", "/api/v1")
 
 
 class Bootstrap:
-    API_ROUTE_PREFIX: str = "/api"
-
-    # Liste des endpoints à configurer
-    ENDPOINTS = [user_endpoint, health_endpoint]
+    # List of endpoints
+    API_ENDPOINTS = [user_endpoint]
 
     @staticmethod
     def create_app() -> FastAPI:
         logger.debug("Creating FastAPI app")
-        # Initialisation de l'application
-        app = FastAPI()
+        LoggerConfig.configure()
+        app = FastAPI(debug=False)
 
-        # Configuration des dépendances
+        # IOC
         # Bootstrap.setup_dependency_injection()
 
-        # Configuration des routes
+        # Router setup
         Bootstrap.setup_routers(app)
 
         return app
@@ -27,9 +30,10 @@ class Bootstrap:
     @staticmethod
     def setup_routers(app: FastAPI):
         logger.debug("Setting up routers")
-        for endpoint in Bootstrap.ENDPOINTS:
-            # app.include_router(endpoint.router, prefix=Bootstrap.API_ROUTE_PREFIX)
-            app.include_router(endpoint.router)
+        for endpoint in Bootstrap.API_ENDPOINTS:
+            app.include_router(endpoint.router, prefix=API_ROUTE_PREFIX)
+
+        app.include_router(health_endpoint.router)
 
     # @staticmethod
     # def setup_dependency_injection():

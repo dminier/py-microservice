@@ -16,7 +16,6 @@ def decode_jwt_token(token: str) -> dict:
 
     try:
         signing_key = OIDC_CONFIG.jwks_client.get_signing_key_from_jwt(token).key
-        # TODO multiple audience : https://pyjwt.readthedocs.io/en/latest/usage.html#audience-claim-aud
         payload = jwt.decode(
             token,
             signing_key,
@@ -26,13 +25,14 @@ def decode_jwt_token(token: str) -> dict:
 
         return payload
 
-    except jwt.ExpiredSignatureError:
+    except jwt.ExpiredSignatureError as e:
+        logger.debug("JWT expired token error: {}", e)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Bearer token has expired.",
         )
-    except jwt.InvalidTokenError:
-        logger.exception("blurp")
+    except jwt.InvalidTokenError as e:
+        logger.debug("JWT invalid token error: {}", e)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Bearer token is invalid.",

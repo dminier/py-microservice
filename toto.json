@@ -1,0 +1,25 @@
+{
+  "message": "Authorized access",
+  "payload": {
+    "exp": 1735047589,
+    "iat": 1735047289,
+    "jti": "9526b52d-9644-444b-a27d-51d3930cd64a",
+    "iss": "http://localhost:8024/realms/pymicroservice",
+    "aud": "account",
+    "sub": "c7c3f59b-ef85-43d6-a06b-84c639d1a51f",
+    "typ": "Bearer",
+    "azp": "myclient",
+    "sid": "23f59509-2b65-4705-9ad0-84a352c0f9ef",
+    "acr": "1",
+    "allowed-origins": ["/*"],
+    "realm_access": { "roles": ["user"] },
+    "resource_access": { "account": { "roles": ["manage-account", "manage-account-links", "view-profile"] } },
+    "scope": "profile email",
+    "email_verified": false,
+    "name": "TestFirstName TestLastName",
+    "preferred_username": "test_user",
+    "given_name": "TestFirstName",
+    "family_name": "TestLastName",
+    "email": "test@test.com"
+  }
+}

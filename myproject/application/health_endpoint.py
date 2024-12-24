@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 
 router = APIRouter()
-from loguru import logger
 
 
 @router.get("/health/liveness", tags=["health"])
@@ -19,7 +18,6 @@ async def liveness_check():
       initialDelaySeconds: 3
       periodSeconds: 10
     """
-    logger.debug("Test")
     return {"status": "alive"}
 
 

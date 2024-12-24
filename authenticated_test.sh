@@ -20,7 +20,7 @@ if [ -z "$ACCESS_TOKEN" ]; then
 fi
 
 echo "Access Token récupéré avec succès : $ACCESS_TOKEN"
-
+echo "Résultat :"
 # Étape 2 : Faire une requête GET protégée avec le token
-curl -X GET http://localhost:8000/protected \
+curl -X GET http://localhost:8000/api/v1/protected \
 -H "Authorization: Bearer $ACCESS_TOKEN"

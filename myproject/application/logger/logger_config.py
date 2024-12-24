@@ -1,12 +1,31 @@
 import inspect
 import logging
-import os
 import sys
-from dataclasses import dataclass
 
+from gunicorn.glogging import Logger
 from loguru import logger
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-LOG_LEVEL = logging.getLevelName(os.environ.get("LOG_LEVEL", "DEBUG"))
+
+class Config(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="LOG_", validate_default=False)
+    level: str = "INFO"
+    format: str = ""
+    json: bool = False
+
+
+CONFIG = Config()
+
+
+class StubbedGunicornLogger(Logger):
+    def setup(self, cfg):
+        handler = logging.NullHandler()
+        self.error_logger = logging.getLogger("gunicorn.error")
+        self.error_logger.addHandler(handler)
+        self.access_logger = logging.getLogger("gunicorn.access")
+        self.access_logger.addHandler(handler)
+        self.error_logger.setLevel(CONFIG.level)
+        self.access_logger.setLevel(CONFIG.level)
 
 
 class InterceptHandler(logging.Handler):
@@ -32,25 +51,41 @@ class InterceptHandler(logging.Handler):
 logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
 
-@dataclass
-class Config:
-    level: str
-    format: str
-    json: bool
-
-
 class LoggerConfig:
     @classmethod
-    def configure(cls):
-        config: Config = cls.load_config()
-
-        cls._configure(config)
+    def configure(cls, production: bool):
+        logging.root.setLevel(CONFIG.level)
+        if production:
+            cls._setup_guvicorn()
+        else:
+            cls._setup_uvicorn_only()
 
     @classmethod
-    def _configure(cls, config: Config):
+    def _setup_guvicorn(cls):
+        intercept_handler = InterceptHandler()
+        logging.root.setLevel(CONFIG.level)
+
+        seen = set()
+        for name in [
+            *logging.root.manager.loggerDict.keys(),
+            "gunicorn",
+            "gunicorn.access",
+            "gunicorn.error",
+            "uvicorn",
+            "uvicorn.access",
+            "uvicorn.error",
+        ]:
+            if name not in seen:
+                seen.add(name.split(".")[0])
+                logging.getLogger(name).handlers = [intercept_handler]
+
+        logger.configure(handlers=[{"sink": sys.stdout, "serialize": CONFIG.json}])
+
+    @classmethod
+    def _setup_uvicorn_only(cls):
         # intercept everything at the root logger
         logging.root.handlers = [InterceptHandler()]
-        logging.root.setLevel(config.level)
+        logging.root.setLevel(CONFIG.level)
 
         # remove every other logger's handlers
         # and propagate to root logger
@@ -59,11 +94,4 @@ class LoggerConfig:
             logging.getLogger(name).propagate = True
 
         # configure loguru
-        logger.configure(handlers=[{"sink": sys.stdout, "serialize": config.json}])
-
-    @classmethod
-    def load_config(cls) -> Config:
-        level = os.getenv("LOG_LEVEL", "INFO")
-        format = os.getenv("LOG_FORMAT", None)
-        json = True if os.environ.get("LOG_JSON", "0") == "1" else False
-        return Config(level, format, json)
+        logger.configure(handlers=[{"sink": sys.stdout, "serialize": CONFIG.json}])

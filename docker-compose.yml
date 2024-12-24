@@ -1,14 +1,11 @@
-version: '3.8'
 services:
-
-
-# use your own development Oauth2 server
+  # use your own development Oauth2 server
 
   keycloak:
     image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION}
     container_name: keycloak
     ports:
-      - "8024:8080"
+      - '8024:8080'
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_USER}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
@@ -17,27 +14,19 @@ services:
       DB_PASSWORD: ${KEYCLOAK_DATABASE_PASSWORD}
       DB_ADDR: ${KEYCLOAK_DATABASE_HOST}
       DB_VENDOR: ${KEYCLOAK_DATABASE_VENDOR}
-#      - KEYCLOAK_IMPORT=/tmp/realm-export.json
-#    volumes:
-#      - ./keycloak/realms/realm-export.json:/tmp/realm-export.json
+      KEYCLOAK_IMPORT: /tmp/realm-export.json
+    volumes:
+      - ./docker-compose/realm-export.json:/opt/keycloak/data/import/realm.json
     command: >
-      start-dev --hostname-strict=false 
+      start-dev --hostname-strict=false --import-realm --verbose
     depends_on:
       - keycloakdb
 
   keycloakdb:
     image: postgres:${POSTGRES_VERSION}
     ports:
-      - "5433:5432"
+      - '5433:5432'
     environment:
       - POSTGRES_USER=${KEYCLOAK_DATABASE_USER}
       - POSTGRES_PASSWORD=${KEYCLOAK_DATABASE_PASSWORD}
       - POSTGRES_DB=${KEYCLOAK_DATABASE_NAME}
-    volumes:
-      - keycloak-postgres:/var/lib/postgresql/data
- 
-
-volumes:
-  keycloak-postgres:
-
- 

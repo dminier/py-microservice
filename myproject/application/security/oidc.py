@@ -4,11 +4,15 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from loguru import logger
 
 from myproject.application.security.oidc_config import OIDC_CONFIG
+from myproject.application.security.token import (
+    JWTAccessToken,
+    map_payload_to_jwt_access_token,
+)
 
 security = HTTPBearer()
 
 
-def decode_jwt_token(token: str) -> dict:
+def decode_jwt_token(token: str) -> JWTAccessToken:
     if OIDC_CONFIG is None:
         raise ValueError(
             "OIDC_CONFIG is None, check environment variable OIDC_CONFIGURATION_URL."
@@ -23,7 +27,9 @@ def decode_jwt_token(token: str) -> dict:
             audience=OIDC_CONFIG.audience,
         )
 
-        return payload
+        jwt_token_object: JWTAccessToken = map_payload_to_jwt_access_token(payload)
+        logger.debug("JWT token decoded: {}", jwt_token_object)
+        return jwt_token_object
 
     except jwt.ExpiredSignatureError as e:
         logger.debug("JWT expired token error: {}", e)
@@ -39,6 +45,8 @@ def decode_jwt_token(token: str) -> dict:
         )
 
 
-def oidc_auth(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
+def oidc_auth(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> JWTAccessToken:
     token = credentials.credentials
     return decode_jwt_token(token)

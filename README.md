@@ -32,6 +32,10 @@ Were are looging for a simple, fast and efficient way to manage dependencies.
 
 This project includes a basic security setup using Keycloak as an identity provider. We can't avoid talking of microservices without talking about security and the main protocols to use are OAuth2 and OpenID Connect.
 
+JWt token : https://datatracker.ietf.org/doc/rfc9068/
+Oidc Id Token : https://openid.net/specs/openid-connect-core-1_0.html#IDToken
+Extension with RFC :
+
 # Code Structure and Organization
 
 The main goal of this section is to provide common patterns :

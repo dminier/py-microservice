@@ -1,18 +1,19 @@
 from fastapi import APIRouter, Depends, FastAPI
 
 from myproject.application.security.oidc import oidc_auth
+from myproject.application.security.token import JWTAccessToken
 
 app = FastAPI()
 router = APIRouter()
 
 
 @router.get("/protected")
-def protected_route(payload: dict = Depends(oidc_auth)):
+def protected_route(access_token: JWTAccessToken = Depends(oidc_auth)):
     """
     Exemple de route protégée :
     - On récupère directement le payload décodé dans la dépendance.
     """
-    return {"message": "Authorized access", "payload": payload}
+    return {"message": "Authorized access", "JWTAccessToken": access_token}
 
 
 @router.get("/public")

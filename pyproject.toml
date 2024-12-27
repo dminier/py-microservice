@@ -14,3 +14,10 @@ dependencies = [
     "pyjwt>=2.10.1",
     "requests>=2.32.3",
 ]
+
+[tool.uv]
+dev-dependencies= [
+    "httpx>=0.28.1",
+    "pytest>=8.3.4",
+    "ruff>=0.8.0",
+]

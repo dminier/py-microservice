@@ -2,12 +2,11 @@ import os
 
 from gunicorn.app.base import BaseApplication
 
-from myproject.application.bootstrap import Bootstrap
-from myproject.application.logger.logger_config import (
-    StubbedGunicornLogger,
-)
+from pymicroservice.logger.logger_config import StubbedGunicornLogger
+from sample.application.bootstrap import Bootstrap
 
 WORKERS = int(os.environ.get("GUNICORN_WORKERS", "1"))
+PORT = int(os.environ.get("GUNICORN_PORT", "8000"))
 
 
 class StandaloneApplication(BaseApplication):
@@ -31,7 +30,7 @@ class StandaloneApplication(BaseApplication):
 
 if __name__ == "__main__":
     options = {
-        "bind": "0.0.0.0:8000",
+        "bind": f"0.0.0.0:{PORT}",
         "workers": WORKERS,
         "accesslog": "-",
         "errorlog": "-",

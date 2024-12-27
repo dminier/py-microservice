@@ -7,7 +7,7 @@
         "request": "launch",
         "module": "uvicorn",
         "args": [
-          "myproject.application.bootstrap:Bootstrap.create_app",
+          "sample.application.bootstrap:Bootstrap.create_app",
           "--host", "127.0.0.1",
           "--port", "8000",
           "--reload"

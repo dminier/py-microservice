@@ -42,4 +42,4 @@ async def readiness_check():
     # if not db_connected:
     #     return {"status": "not ready"}, 503
 
-    return {"status": "ready"}
+    return {"status": "up"}

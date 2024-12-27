@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, FastAPI
 
-from myproject.application.security.oidc import oidc_auth
-from myproject.application.security.token import JWTAccessToken
+from pymicroservice.security.oidc import oidc_auth
+from pymicroservice.security.token import JWTAccessToken
 
 app = FastAPI()
 router = APIRouter()
@@ -10,8 +10,7 @@ router = APIRouter()
 @router.get("/protected")
 def protected_route(access_token: JWTAccessToken = Depends(oidc_auth)):
     """
-    Exemple de route protégée :
-    - On récupère directement le payload décodé dans la dépendance.
+    Protected route example.
     """
     return {"message": "Authorized access", "JWTAccessToken": access_token}
 
@@ -19,6 +18,6 @@ def protected_route(access_token: JWTAccessToken = Depends(oidc_auth)):
 @router.get("/public")
 def public_route():
     """
-    Exemple de route publique.
+    Public route example.
     """
     return {"message": "Welcome in a public place"}

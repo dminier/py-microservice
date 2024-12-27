@@ -7,14 +7,14 @@ from loguru import logger
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Config(BaseSettings):
+class LoggerConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LOG_", validate_default=False)
     level: str = "INFO"
     format: str = ""
-    json: bool = False
+    json_output: bool = False
 
 
-CONFIG = Config()
+LOGGER_CONFIG = LoggerConfig()
 
 
 class StubbedGunicornLogger(Logger):
@@ -24,8 +24,8 @@ class StubbedGunicornLogger(Logger):
         self.error_logger.addHandler(handler)
         self.access_logger = logging.getLogger("gunicorn.access")
         self.access_logger.addHandler(handler)
-        self.error_logger.setLevel(CONFIG.level)
-        self.access_logger.setLevel(CONFIG.level)
+        self.error_logger.setLevel(LOGGER_CONFIG.level)
+        self.access_logger.setLevel(LOGGER_CONFIG.level)
 
 
 class InterceptHandler(logging.Handler):
@@ -54,7 +54,7 @@ logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 class LoggerConfig:
     @classmethod
     def configure(cls, production: bool):
-        logging.root.setLevel(CONFIG.level)
+        logging.root.setLevel(LOGGER_CONFIG.level)
         if production:
             cls._setup_guvicorn()
         else:
@@ -63,7 +63,7 @@ class LoggerConfig:
     @classmethod
     def _setup_guvicorn(cls):
         intercept_handler = InterceptHandler()
-        logging.root.setLevel(CONFIG.level)
+        logging.root.setLevel(LOGGER_CONFIG.level)
 
         seen = set()
         for name in [
@@ -79,13 +79,15 @@ class LoggerConfig:
                 seen.add(name.split(".")[0])
                 logging.getLogger(name).handlers = [intercept_handler]
 
-        logger.configure(handlers=[{"sink": sys.stdout, "serialize": CONFIG.json}])
+        logger.configure(
+            handlers=[{"sink": sys.stdout, "serialize": LOGGER_CONFIG.json_output}]
+        )
 
     @classmethod
     def _setup_uvicorn_only(cls):
         # intercept everything at the root logger
         logging.root.handlers = [InterceptHandler()]
-        logging.root.setLevel(CONFIG.level)
+        logging.root.setLevel(LOGGER_CONFIG.level)
 
         # remove every other logger's handlers
         # and propagate to root logger
@@ -94,4 +96,6 @@ class LoggerConfig:
             logging.getLogger(name).propagate = True
 
         # configure loguru
-        logger.configure(handlers=[{"sink": sys.stdout, "serialize": CONFIG.json}])
+        logger.configure(
+            handlers=[{"sink": sys.stdout, "serialize": LOGGER_CONFIG.json_output}]
+        )

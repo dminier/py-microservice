@@ -3,8 +3,8 @@ import os
 from fastapi import FastAPI
 from loguru import logger
 
-from myproject.application import health_endpoint, user_endpoint
-from myproject.application.logger.logger_config import LoggerConfig
+from pymicroservice.logger.logger_config import LoggerConfig
+from sample.application import health_endpoint, user_endpoint
 
 API_ROUTE_PREFIX: str = os.getenv("API_ROUTE_PREFIX", "/api/v1")
 
@@ -20,7 +20,7 @@ class Bootstrap:
         logger.info("🌟 Creating FastAPI app")
         app = FastAPI(debug=False)
         # IOC
-        # Bootstrap.setup_dependency_injection()
+        # Bootstrap._setup_dependency_injection()
 
         # Router setup
         logger.info("🔧 Setting up routers")
@@ -36,7 +36,7 @@ class Bootstrap:
         app.include_router(health_endpoint.router)
 
     # @staticmethod
-    # def setup_dependency_injection():
+    # def _setup_dependency_injection():
     #     logger.debug("Setting up dependency injection")
     #     # Initialisation des conteneurs
     #     domain_container = VirtualStaffContainer()

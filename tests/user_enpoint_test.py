@@ -22,7 +22,7 @@ def mock_decode_jwt_token(token: str):
         return JWTAccessToken(
             iss="https://example.com",
             exp=int((now + timedelta(hours=1)).timestamp()),  # Expire in 1 hour
-            aud="my_audience",
+            aud="account",
             sub="user_12345",
             iat=int(now.timestamp()),
             jti=str(uuid.uuid4()),  # Generate unique token ID

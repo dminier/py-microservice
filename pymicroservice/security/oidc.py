@@ -1,3 +1,5 @@
+from asyncio import Lock
+
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -12,47 +14,28 @@ from pymicroservice.security.token import (
 SECURITY_BEARER = HTTPBearer()
 
 
-class OidcConfigManager:
-    """
-    Singleton manager for OIDC_CONFIG, allowing easy mocking and reloading.
-    """
-
+class OidcConfigSingleton:
     _instance = None
+    _lock = Lock()
 
-    def __new__(cls, *args, **kwargs):
+    @classmethod
+    async def get_instance(cls) -> OidcConfig:
         if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._config = None
+            async with cls._lock:  # Ensure thread safety
+                if cls._instance is None:
+                    loader = OidcConfigLoader()
+                    cls._instance = loader.load()
         return cls._instance
 
-    def load(self):
-        """
-        Load the OIDC configuration using the OidcConfigLoader.
-        """
-        loader = OidcConfigLoader()
-        self._config = loader.load()
 
-    def set_config(self, config: OidcConfig):
-        """
-        Set a custom OIDC configuration, useful for mocking in tests.
-        """
-        self._config = config
-
-    def get_config(self) -> OidcConfig:
-        """
-        Get the current OIDC configuration. Raise an error if not set.
-        """
-        if self._config is None:
-            raise ValueError("OIDC_CONFIG is not set. Ensure it is loaded or mocked.")
-        return self._config
+async def get_oidc_config() -> OidcConfig:
+    return await OidcConfigSingleton.get_instance()
 
 
-def decode_jwt_token(token: str) -> JWTAccessToken:
-    OIDC_CONFIG_MANAGER = OidcConfigManager()
-    OIDC_CONFIG_MANAGER.load()
-
-    oidc_config = OIDC_CONFIG_MANAGER.get_config()
-
+def decode_jwt_token(
+    token: str,
+    oidc_config: OidcConfig,
+) -> JWTAccessToken:
     try:
         signing_key = oidc_config.jwks_client.get_signing_key_from_jwt(token).key
         payload = jwt.decode(
@@ -80,8 +63,9 @@ def decode_jwt_token(token: str) -> JWTAccessToken:
         )
 
 
-def oidc_auth(
+async def oidc_auth(
     credentials: HTTPAuthorizationCredentials = Depends(SECURITY_BEARER),
+    oidc_config: OidcConfig = Depends(get_oidc_config),
 ) -> JWTAccessToken:
     token = credentials.credentials
-    return decode_jwt_token(token)
+    return decode_jwt_token(token, oidc_config)

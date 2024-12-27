@@ -8,7 +8,7 @@ router = APIRouter()
 
 
 @router.get("/protected")
-def protected_route(access_token: JWTAccessToken = Depends(oidc_auth)):
+async def protected_route(access_token: JWTAccessToken = Depends(oidc_auth)):
     """
     Protected route example.
     """
@@ -16,7 +16,7 @@ def protected_route(access_token: JWTAccessToken = Depends(oidc_auth)):
 
 
 @router.get("/public")
-def public_route():
+async def public_route():
     """
     Public route example.
     """

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Étape 1 : Récupérer l'access token
 RESPONSE=$(curl -s -X POST http://localhost:8024/realms/pymicroservice/protocol/openid-connect/token \
 -H "Content-Type: application/x-www-form-urlencoded" \
 -d "grant_type=password" \
@@ -9,18 +8,16 @@ RESPONSE=$(curl -s -X POST http://localhost:8024/realms/pymicroservice/protocol/
 -d "username=test_user" \
 -d "password=test")
 
-# Extraire l'access token de la réponse JSON
+ 
 ACCESS_TOKEN=$(echo "$RESPONSE" | grep -o '"access_token":"[^"]*' | sed 's/"access_token":"//')
-
-# Vérification si l'ACCESS_TOKEN a été récupéré
+ 
 if [ -z "$ACCESS_TOKEN" ]; then
-  echo "Erreur : Impossible de récupérer l'access token."
-  echo "Réponse : $RESPONSE"
+  echo "Unable to get access token"
+  echo "Response : $RESPONSE"
   exit 1
 fi
 
-echo "Access Token récupéré avec succès : $ACCESS_TOKEN"
-echo "Résultat :"
-# Étape 2 : Faire une requête GET protégée avec le token
+echo "Access Token  : $ACCESS_TOKEN"
+echo "Result :"
 curl -X GET http://localhost:8000/api/v1/protected \
 -H "Authorization: Bearer $ACCESS_TOKEN"

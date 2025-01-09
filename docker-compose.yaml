@@ -1,0 +1,134 @@
+services:
+  keycloak:
+    container_name: keycloak.local
+    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION}
+    ports:
+      - '8024:8080'
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_USER}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
+      DB_DATABASE: ${KEYCLOAK_DATABASE_NAME}
+      DB_USER: ${KEYCLOAK_DATABASE_USER}
+      DB_PASSWORD: ${KEYCLOAK_DATABASE_PASSWORD}
+      DB_ADDR: ${KEYCLOAK_DATABASE_HOST}
+      DB_VENDOR: ${KEYCLOAK_DATABASE_VENDOR}
+      KEYCLOAK_IMPORT: /tmp/realm-export.json
+    volumes:
+      - ./docker-compose/realm-export.json:/opt/keycloak/data/import/realm.json
+    command: >
+      start-dev --hostname-strict=false --import-realm --verbose
+    depends_on:
+      - keycloakdb
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'exec 3<>/dev/tcp/localhost/8080; echo -e "GET /health/ready HTTP/1.1\nhost: localhost:8080\n" >&3; timeout --preserve-status 1 cat <&3 | grep -m 1 status | grep -m 1 UP; ERROR=$?; exec 3<&-; exec 3>&-; exit $ERROR'
+        ]
+      start_period: 10s
+      interval: 5s
+      timeout: 2s
+      retries: 20
+ 
+  keycloakdb:
+    container_name: keycloakdb.local
+    image: postgres:${POSTGRES_VERSION}
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_USER=${KEYCLOAK_DATABASE_USER}
+      - POSTGRES_PASSWORD=${KEYCLOAK_DATABASE_PASSWORD}
+      - POSTGRES_DB=${KEYCLOAK_DATABASE_NAME}
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${KEYCLOAK_DATABASE_USER:?}", "-d", "${KEYCLOAK_DATABASE_NAME:?}" ]
+      start_period: 5s
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      
+  redis:
+    container_name: redis.local
+    image: redis:7.2-alpine
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      start_period: 3s
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  sample-api:
+    container_name: sample-api.local
+    build:
+      context: .
+      args:
+        DEV: ${DEV:-false}
+    ports:
+      - '8000:8000'
+    command: >
+      python sample/main_api.py
+    depends_on:
+      - sample-worker
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - LOG_JSON_OUTPUT=${LOG_JSON_OUTPUT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - OIDC_CONFIGURATION_URL=${OIDC_CONFIGURATION_URL}
+      - OIDC_AUDIENCE=${OIDC_AUDIENCE}
+      - API_ROUTE_PREFIX=${API_ROUTE_PREFIX}
+      - GUNICORN_WORKERS=${GUNICORN_WORKERS}
+      - GUNICORN_PORT=${GUNICORN_PORT}
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTPS_PROXY}
+      - NO_PROXY=${NO_PROXY}
+      - http_proxy=${HTTP_PROXY}
+      - https_proxy=${HTTPS_PROXY}
+      - no_proxy=${NO_PROXY}
+      - TEST_KEYCLOAK_URL=${TEST_KEYCLOAK_URL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/readiness"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 3s   
+
+  sample-worker:
+    container_name: sample-worker.local
+    build:
+      context: .
+      args:
+        DEV: ${DEV:-false}
+    command: >
+      celery -A sample.main_worker worker --pool=solo --loglevel=info
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - LOG_JSON_OUTPUT=${LOG_JSON_OUTPUT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTPS_PROXY}
+      - NO_PROXY=${NO_PROXY}
+      - http_proxy=${HTTP_PROXY}
+      - https_proxy=${HTTPS_PROXY}
+      - no_proxy=${NO_PROXY}
+    healthcheck:
+      test: ["CMD", "celery", "inspect", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 3s   
+
+  flower:
+    container_name: flower.local
+    image: mher/flower
+    command: ['celery', '--broker=redis://redis:6379/0', 'flower']
+    ports:
+      - '5555:5555'
+    depends_on:
+      - redis
+ 
+ 

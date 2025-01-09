@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Python: Uvicorn",
+        "type": "debugpy",
+        "request": "launch",
+        "module": "uvicorn",
+        "args": [
+          "sample.application.bootstrap:Bootstrap.create_app",
+          "--host", "127.0.0.1",
+          "--port", "8000",
+          "--reload"
+        ],
+        "envFile": "${workspaceFolder}/.env",
+        "console": "integratedTerminal"
+      }
+    ]
+  }

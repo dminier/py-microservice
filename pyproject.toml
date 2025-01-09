@@ -1,0 +1,56 @@
+[project]
+name = "py-microservice"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+
+]
+
+[dependency-groups]
+py-microservice = [
+    "cryptography>=44.0.0",
+    "fastapi[standard]>=0.115.6",
+    "gunicorn>=23.0.0",
+    "loguru>=0.7.3",
+    "pydantic-settings>=2.7.0",
+    "pyjwt>=2.10.1",
+    "requests>=2.32.3",
+    "kombu>=5.4.2"
+]
+sample = [
+    "celery>=5.4.0",
+    "redis>=5.2.1",
+]
+
+[tool.uv]
+default-groups = ["py-microservice", "sample"]
+dev-dependencies= [
+    "httpx>=0.28.1",
+    "pytest>=8.3.4",
+    "ruff>=0.8.0",
+    "pre-commit>=4.0.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["./pymicroservice", "./sample"]
+
+[tool.ruff]
+lint.select = [
+ # pycodestyle
+ "E",
+ # Pyflakes
+ "F",
+ # pyupgrade
+ "UP",
+ # flake8-bugbear
+ "B",
+ # flake8-simplify
+ "SIM",
+ # isort
+ "I",]  # Rules to apply
+lint.ignore = []                 # Example of ignoring specific rules
+lint.fixable = ["ALL"]           # Allow automatic fixes for all fixable issues
+target-version = "py312"         # Target Python version
+line-length = 120                # Line length for formatting

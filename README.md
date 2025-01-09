@@ -59,8 +59,8 @@ and the corresponding environment variables :
 ```bash
 # WORKER Configuration
 # ------------------------------------------------------------------
-# WORKER_BROKER_URL=redis://localhost:6379/0
-# WORKER_RESULT_BACKEND=redis://localhost:6379
+# Default : CELERY_BROKER_URL=redis://localhost:6379/0
+# Default : CELERY_RESULT_BACKEND=redis://localhost:6379
 ```
 
 **note :** this configuration is used by api and worker
@@ -328,9 +328,9 @@ Flower is a web based tool for monitoring and administrating Celery clusters. Yo
 ```yaml
 flower:
   image: mher/flower
-  command: ['celery', '--broker=redis://redis:6379/0', 'flower']
+  command: ["celery", "--broker=redis://redis:6379/0", "flower"]
   ports:
-    - '5555:5555'
+    - "5555:5555"
   depends_on:
     - redis
 ```

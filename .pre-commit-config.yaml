@@ -1,0 +1,67 @@
+repos:
+  # Ruff for Python formatting and linting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.0
+    hooks:
+      - id: ruff
+        name: Ruff Linter
+        args: ["--fix"] # Automatically fix issues
+        files: \.py$
+        exclude: ^app/alembic/
+        stages: [pre-commit]
+      - id: ruff-format
+        name: Ruff Formatter
+        files: \.py$
+        exclude: ^app/alembic/
+        stages: [pre-commit]
+  # Mypy to check type annotations
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.0.1
+    hooks:
+      - id: mypy
+        name: Mypy Type Checker
+        args: ["--explicit-package-bases"]
+        additional_dependencies: [types-sqlalchemy, types-requests]
+        files: ^app/
+        exclude: ^app/alembic/
+        stages: [pre-commit]
+
+  - repo: local
+    hooks:
+      - id: docker-compose-build
+        name: Docker Compose Build (Development)
+        entry: |
+          bash -c "
+          set -e;
+          echo 'Setting up environment variables from .env file...';
+          echo 'Building Docker Compose services...';
+          docker compose -f docker-compose.yaml build --build-arg ENV=dev;
+          echo 'All services are built!';
+          "
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, pre-push]
+      - id: docker-compose-run
+        name: Docker Compose Up (Development)
+        entry: |
+          bash -c "
+          set -e
+          echo 'Starting Docker Compose services until healthy ...'
+          source .env.intregrated-test
+          docker compose  up -d --wait
+          echo 'All services are running!'
+          "
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, pre-push]
+      - id: integrated-test-dev
+        name: Pytest
+        entry: |
+          bash -c "
+          set -e;
+          echo 'Running Pytest inside sample-api ...';
+          docker compose -f docker-compose.yaml exec -T sample-api uv run pytest;
+          "
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, pre-push]

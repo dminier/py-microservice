@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -12,13 +12,11 @@ class JWTAccessToken:
     jti: str
 
     # Optional fields for authentication information
-    auth_time: Optional[str] = None
-    acr: Optional[str] = None
-    amr: Optional[List[str]] = field(default_factory=list)
+    auth_time: str | None = None
+    acr: str | None = None
+    amr: list[str] | None = field(default_factory=list)
 
-    extra_claims: Dict[str, Any] = field(
-        default_factory=dict
-    )  # Stores claims not in the spec https://datatracker.ietf.org/doc/rfc9068/
+    extra_claims: dict[str, Any] = field(default_factory=dict)
 
 
 def map_payload_to_jwt_access_token(payload: dict) -> JWTAccessToken:
@@ -36,9 +34,7 @@ def map_payload_to_jwt_access_token(payload: dict) -> JWTAccessToken:
 
     standard_data = {field: payload.get(field) for field in standard_fields}
 
-    extra_claims = {
-        key: value for key, value in payload.items() if key not in standard_fields
-    }
+    extra_claims = {key: value for key, value in payload.items() if key not in standard_fields}
 
     return JWTAccessToken(
         **{key: value for key, value in standard_data.items() if value is not None},

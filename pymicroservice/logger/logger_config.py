@@ -43,9 +43,7 @@ class InterceptHandler(logging.Handler):
             frame = frame.f_back
             depth += 1
 
-        logger.opt(depth=depth, exception=record.exc_info).log(
-            level, record.getMessage()
-        )
+        logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
 
 
 logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
@@ -53,12 +51,15 @@ logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
 class LoggerConfig:
     @classmethod
-    def configure(cls, production: bool):
+    def configure(cls, production: bool, api: bool = True):
         logging.root.setLevel(LOGGER_CONFIG.level)
-        if production:
-            cls._setup_guvicorn()
+        if api:
+            if production:
+                cls._setup_guvicorn()
+            else:
+                cls._setup_simple()
         else:
-            cls._setup_uvicorn_only()
+            cls._setup_simple()
 
     @classmethod
     def _setup_guvicorn(cls):
@@ -79,23 +80,19 @@ class LoggerConfig:
                 seen.add(name.split(".")[0])
                 logging.getLogger(name).handlers = [intercept_handler]
 
-        logger.configure(
-            handlers=[{"sink": sys.stdout, "serialize": LOGGER_CONFIG.json_output}]
-        )
+        logger.configure(handlers=[{"sink": sys.stdout, "serialize": LOGGER_CONFIG.json_output}])
 
     @classmethod
-    def _setup_uvicorn_only(cls):
+    def _setup_simple(cls):
         # intercept everything at the root logger
         logging.root.handlers = [InterceptHandler()]
         logging.root.setLevel(LOGGER_CONFIG.level)
 
         # remove every other logger's handlers
         # and propagate to root logger
-        for name in logging.root.manager.loggerDict.keys():
-            logging.getLogger(name).handlers = []
-            logging.getLogger(name).propagate = True
+        for key in logging.root.manager.loggerDict:
+            logging.getLogger(key).handlers = []
+            logging.getLogger(key).propagate = True
 
         # configure loguru
-        logger.configure(
-            handlers=[{"sink": sys.stdout, "serialize": LOGGER_CONFIG.json_output}]
-        )
+        logger.configure(handlers=[{"sink": sys.stdout, "serialize": LOGGER_CONFIG.json_output}])

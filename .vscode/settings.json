@@ -32,13 +32,6 @@
   "python.testing.pytestEnabled": true,
   "python.testing.autoTestDiscoverOnSaveEnabled": true,
 
-  // Prettier settings
-  "prettier.tabWidth": 2, // Consistent tab width for formatting
-  "prettier.singleQuote": true, // Use single quotes for strings
-  "prettier.trailingComma": "all", // Enforce trailing commas
-  "prettier.arrowParens": "always", // Enforce parentheses for arrow functions
-  "prettier.printWidth": 120, // Enforce maximum line length
-  "prettier.endOfLine": "lf",
   "python.testing.pytestArgs": [
     "tests"
   ], // Normalize line endings

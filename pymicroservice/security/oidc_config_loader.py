@@ -1,6 +1,5 @@
 import os
 from dataclasses import dataclass
-from typing import Optional
 
 import jwt
 import requests
@@ -33,9 +32,9 @@ class OidcConfigLoader:
         """
         self.config_url_env = config_url_env
         self.audience_env = audience_env
-        self.config: Optional[OidcConfig] = None
+        self.config: OidcConfig | None = None
 
-    def load(self) -> Optional[OidcConfig]:
+    def load(self) -> OidcConfig | None:
         """
         Load the OIDC configuration.
 
@@ -52,9 +51,7 @@ class OidcConfigLoader:
         audience = os.getenv(self.audience_env, "account")
 
         if not audience:
-            raise EnvironmentError(
-                f"{self.audience_env} not found in environment variables."
-            )
+            raise OSError(f"{self.audience_env} not found in environment variables.")
 
         oidc_config = self._fetch_oidc_config(oidc_config_url)
 
@@ -93,7 +90,7 @@ class OidcConfigLoader:
             logger.error(f"Failed to fetch OIDC configuration from {url}: {e}")
             raise
 
-    def get_config(self) -> Optional[OidcConfig]:
+    def get_config(self) -> OidcConfig | None:
         """
         Retrieve the loaded configuration, if any.
 

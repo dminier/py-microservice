@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 from sample.application.bootstrap import Bootstrap
 
-app: FastAPI = Bootstrap.create_app()
+app: FastAPI = Bootstrap.build_api()
 client = TestClient(app)
 
 

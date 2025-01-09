@@ -54,18 +54,22 @@ def decode_jwt_token(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Bearer token has expired.",
-        )
+        ) from e
     except jwt.InvalidTokenError as e:
         logger.debug("JWT invalid token error: {}", e)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Bearer token is invalid.",
-        )
+        ) from e
+
+
+security_bearer_dependency = Depends(SECURITY_BEARER)
+get_oidc_config_dependency = Depends(get_oidc_config)
 
 
 async def oidc_auth(
-    credentials: HTTPAuthorizationCredentials = Depends(SECURITY_BEARER),
-    oidc_config: OidcConfig = Depends(get_oidc_config),
+    credentials: HTTPAuthorizationCredentials = security_bearer_dependency,
+    oidc_config: OidcConfig = get_oidc_config_dependency,
 ) -> JWTAccessToken:
     token = credentials.credentials
     return decode_jwt_token(token, oidc_config)

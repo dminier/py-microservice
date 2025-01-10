@@ -35,4 +35,8 @@
   "python.testing.pytestArgs": [
     "tests"
   ], // Normalize line endings
+
+
+  "mypy-type-checker.importStrategy": "fromEnvironment",
+  "mypy-type-checker.args": ["--config-file=mypy.ini"]
 }

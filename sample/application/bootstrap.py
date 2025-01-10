@@ -4,8 +4,8 @@ from celery import Celery
 from fastapi import FastAPI
 from loguru import logger
 
-from pymicroservice.kombu.register_pydantic import register_pydantic_types
 from pymicroservice.logger.logger_config import LoggerConfig
+from pymicroservice.worker.register_pydantic import register_pydantic_types
 from sample.application.health import health_endpoint
 from sample.application.user import user_endpoint
 from sample.application.worker import worker_endpoint

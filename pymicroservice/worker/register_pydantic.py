@@ -16,7 +16,7 @@ def _decoder(clz: type[BaseModel], data: dict) -> BaseModel:
     return clz(**data)
 
 
-def register_pydantic_types(models: list[dict[BaseModel]]):
+def register_pydantic_types(models: list[type[BaseModel]]):
     for model in models:
         register_type(
             model,

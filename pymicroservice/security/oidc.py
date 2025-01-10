@@ -15,11 +15,11 @@ SECURITY_BEARER = HTTPBearer()
 
 
 class OidcConfigSingleton:
-    _instance = None
+    _instance: OidcConfig | None = None
     _lock = Lock()
 
     @classmethod
-    async def get_instance(cls) -> OidcConfig:
+    async def get_instance(cls):
         if cls._instance is None:
             async with cls._lock:  # Ensure thread safety
                 if cls._instance is None:

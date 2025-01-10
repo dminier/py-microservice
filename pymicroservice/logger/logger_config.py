@@ -7,14 +7,14 @@ from loguru import logger
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class LoggerConfig(BaseSettings):
+class LoggerSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LOG_", validate_default=False)
     level: str = "INFO"
     format: str = ""
     json_output: bool = False
 
 
-LOGGER_CONFIG = LoggerConfig()
+LOGGER_CONFIG = LoggerSettings()
 
 
 class StubbedGunicornLogger(Logger):

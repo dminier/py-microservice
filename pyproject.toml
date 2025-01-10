@@ -4,12 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-
-]
 
 [dependency-groups]
-py-microservice = [
+pymicroservice = [
+    "requests>=2.32.3",
     "cryptography>=44.0.0",
     "fastapi[standard]>=0.115.6",
     "gunicorn>=23.0.0",
@@ -17,20 +15,24 @@ py-microservice = [
     "pydantic-settings>=2.7.0",
     "pyjwt>=2.10.1",
     "requests>=2.32.3",
-    "kombu>=5.4.2"
+    "kombu>=5.4.2",
+    "celery-types>=0.22.0",
+    "types-requests>=2.32.0.20241016",
 ]
 sample = [
     "celery>=5.4.0",
     "redis>=5.2.1",
 ]
 
+
 [tool.uv]
-default-groups = ["py-microservice", "sample"]
+default-groups = ["pymicroservice", "sample"]
 dev-dependencies= [
-    "httpx>=0.28.1",
+    "pre-commit>=4.0.1",
     "pytest>=8.3.4",
     "ruff>=0.8.0",
-    "pre-commit>=4.0.1",
+    "mypy>=1.14.1",
+    "httpx>=0.28.1",
 ]
 
 [tool.pytest.ini_options]
